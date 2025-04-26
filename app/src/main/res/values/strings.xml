@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Personalized Learning</string>
+    <string name="topic_icon_description">Topic icon</string>
+    <string name="topic_arrow_description">Navigate to topic</string>
+    <string name="topic_title_placeholder">Topic Title</string>
+    <string name="topic_description_placeholder">Topic description goes here</string>
+    
+    <!-- Auth Screens -->
+    <string name="app_logo_description">Application logo</string>
+    <string name="welcome_message">Welcome to Personalized Learning</string>
+    <string name="sign_in_subtitle">Sign in to continue your learning journey</string>
+    <string name="email_hint">Email Address</string>
+    <string name="password_hint">Password</string>
+    <string name="sign_in_button">Sign In</string>
+    <string name="new_user_text">New to Personalized Learning?</string>
+    <string name="create_account_button">Create New Account</string>
+    <string name="have_account_text">Already have an account?</string>
+    <string name="sign_in_text">Sign In</string>
+    
+    <!-- Sign Up Screen -->
+    <string name="create_account_title">Create Account</string>
+    <string name="sign_up_subtitle">Sign up to start learning</string>
+    <string name="full_name_hint">Full Name</string>
+    <string name="confirm_password_hint">Confirm Password</string>
+    <string name="sign_up_button">Sign Up</string>
+</resources>
