@@ -56,4 +56,12 @@ public class ProfileManager {
     public void clearProfile() {
         preferences.edit().clear().apply();
     }
+
+    public void clearSession() {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove("username");
+        editor.remove("email");
+        editor.remove("interests");
+        editor.apply();
+    }
 } 

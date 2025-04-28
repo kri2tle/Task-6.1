@@ -21,6 +21,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        <activity
+            android:name=".ui.debug.DatabaseViewerActivity"
+            android:exported="false"
+            android:label="Database Viewer" />
     </application>
 
 </manifest>

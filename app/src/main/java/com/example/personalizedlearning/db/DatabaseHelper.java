@@ -642,4 +642,67 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         
         return success;
     }
+
+    public List<UserProfile> getAllUserProfiles() {
+        List<UserProfile> userProfiles = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT * FROM " + TABLE_USER_PROFILES;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                UserProfile profile = new UserProfile();
+                profile.setId(cursor.getInt(cursor.getColumnIndex(KEY_ID)));
+                profile.setUsername(cursor.getString(cursor.getColumnIndex(KEY_USERNAME)));
+                profile.setEmail(cursor.getString(cursor.getColumnIndex(KEY_EMAIL)));
+                profile.setPasswordHash(cursor.getString(cursor.getColumnIndex(KEY_PASSWORD_HASH)));
+                profile.setInterests(cursor.getString(cursor.getColumnIndex(KEY_INTERESTS)));
+                userProfiles.add(profile);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        return userProfiles;
+    }
+
+    public String getDatabaseContents() {
+        StringBuilder contents = new StringBuilder();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Get all tables
+        Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+        if (cursor.moveToFirst()) {
+            do {
+                String tableName = cursor.getString(0);
+                contents.append("\nTable: ").append(tableName).append("\n");
+                contents.append("----------------------------------------\n");
+
+                // Get table contents
+                Cursor tableCursor = db.rawQuery("SELECT * FROM " + tableName, null);
+                if (tableCursor.moveToFirst()) {
+                    // Get column names
+                    String[] columnNames = tableCursor.getColumnNames();
+                    for (String columnName : columnNames) {
+                        contents.append(columnName).append("\t");
+                    }
+                    contents.append("\n");
+
+                    // Get rows
+                    do {
+                        for (String columnName : columnNames) {
+                            String value = tableCursor.getString(tableCursor.getColumnIndex(columnName));
+                            contents.append(value).append("\t");
+                        }
+                        contents.append("\n");
+                    } while (tableCursor.moveToNext());
+                }
+                tableCursor.close();
+                contents.append("\n");
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        return contents.toString();
+    }
 } 

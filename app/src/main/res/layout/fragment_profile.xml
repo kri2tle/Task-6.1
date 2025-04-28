@@ -200,6 +200,16 @@
                         android:text="Delete Profile"
                         android:textAllCaps="false"
                         android:backgroundTint="@android:color/holo_red_light"
+                        android:padding="12dp"
+                        android:layout_marginBottom="8dp" />
+
+                    <Button
+                        android:id="@+id/sign_out_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Sign Out"
+                        android:textAllCaps="false"
+                        android:backgroundTint="@color/primary"
                         android:padding="12dp" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

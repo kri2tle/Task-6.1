@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.example.personalizedlearning.R;
+import com.example.personalizedlearning.db.DatabaseHelper;
 import com.example.personalizedlearning.utils.DataClearUtil;
 import com.example.personalizedlearning.utils.ProfileManager;
 
@@ -25,7 +26,7 @@ public class ProfileFragment extends Fragment {
     private Button saveButton;
     private View profileFormLayout, profileInfoLayout;
     private TextView nameTextView, emailTextView, interestsTextView;
-    private Button editButton, deleteProfileButton;
+    private Button editButton, deleteProfileButton, signOutButton;
     
     // Store topic information for redirecting after profile creation
     private int topicId = 0;
@@ -64,11 +65,13 @@ public class ProfileFragment extends Fragment {
         interestsTextView = root.findViewById(R.id.interests_text_view);
         editButton = root.findViewById(R.id.edit_button);
         deleteProfileButton = root.findViewById(R.id.delete_profile_button);
+        signOutButton = root.findViewById(R.id.sign_out_button);
         
         // Set up listeners
         saveButton.setOnClickListener(v -> saveProfile());
         editButton.setOnClickListener(v -> showEditForm());
         deleteProfileButton.setOnClickListener(v -> showDeleteConfirmationDialog());
+        signOutButton.setOnClickListener(v -> signOut());
         
         // Check if profile already exists
         if (profileManager.isProfileCreated()) {
@@ -173,22 +176,50 @@ public class ProfileFragment extends Fragment {
     
     private void deleteProfile() {
         try {
+            // Get the email before deleting
+            String email = ProfileManager.getInstance(requireContext()).getEmail();
+            
             // Call the utility method to clear all user data
             DataClearUtil.clearAllData(requireContext());
             
+            // Delete user from database
+            DatabaseHelper.getInstance(requireContext()).deleteUserByEmail(email);
+            
             // Show success message
-            Toast.makeText(requireContext(), "Profile deleted successfully", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Account deleted successfully", Toast.LENGTH_SHORT).show();
             
-            // Show the form to create a new profile
-            showEditForm();
+            // Navigate to sign in screen
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.navigation_sign_in);
             
-            // Reset form fields
-            nameEditText.setText("");
-            emailEditText.setText("");
-            interestsEditText.setText("");
         } catch (Exception e) {
-            Toast.makeText(requireContext(), "Error deleting profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(requireContext(), "Error deleting account: " + e.getMessage(), Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
+    }
+
+    private void signOut() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Sign Out");
+        builder.setMessage("Are you sure you want to sign out?");
+        
+        builder.setPositiveButton("Sign Out", (dialog, id) -> {
+            // Clear session data
+            ProfileManager profileManager = ProfileManager.getInstance(requireContext());
+            profileManager.clearSession();
+            profileManager.setProfileCreated(false); // Mark profile as not created to force login
+            
+            // Show success message
+            Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show();
+            
+            // Navigate to sign in screen and clear back stack
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.navigation_sign_in);
+        });
+        
+        builder.setNegativeButton("Cancel", (dialog, id) -> dialog.dismiss());
+        
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 } 
