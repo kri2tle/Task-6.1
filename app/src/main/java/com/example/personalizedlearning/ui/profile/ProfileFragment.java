@@ -1,6 +1,8 @@
 package com.example.personalizedlearning.ui.profile;
 
+import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.example.personalizedlearning.R;
 import com.example.personalizedlearning.db.DatabaseHelper;
+import com.example.personalizedlearning.db.UserProfile;
 import com.example.personalizedlearning.utils.DataClearUtil;
 import com.example.personalizedlearning.utils.ProfileManager;
 
@@ -96,17 +99,44 @@ public class ProfileFragment extends Fragment {
             return;
         }
         
-        // Save profile data
-        profileManager.saveProfile(name, email, interests);
-        
-        // Show profile info
-        showProfileInfo();
-        
-        Toast.makeText(requireContext(), "Profile saved successfully", Toast.LENGTH_SHORT).show();
-        
-        // If we should redirect to a specific topic's study material
-        if (shouldRedirect) {
-            redirectToStudyMaterial();
+        try {
+            // Get the old email before updating
+            String oldEmail = profileManager.getEmail();
+            
+            // Save to SharedPreferences
+            profileManager.saveProfile(name, email, interests);
+            
+            // Update in SQLite database
+            DatabaseHelper dbHelper = DatabaseHelper.getInstance(requireContext());
+            UserProfile userProfile = dbHelper.getUserByEmail(oldEmail);
+            
+            if (userProfile != null) {
+                // Update existing profile
+                ContentValues values = new ContentValues();
+                values.put("username", name);
+                values.put("email", email);
+                values.put("interests", interests);
+                
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+                db.update("user_profiles", values,
+                        "email=?", new String[]{oldEmail});
+            } else {
+                // Create new profile if it doesn't exist
+                dbHelper.createUserProfile(name, email, "", interests);
+            }
+            
+            // Show profile info
+            showProfileInfo();
+            
+            Toast.makeText(requireContext(), "Profile saved successfully", Toast.LENGTH_SHORT).show();
+            
+            // If we should redirect to a specific topic's study material
+            if (shouldRedirect) {
+                redirectToStudyMaterial();
+            }
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "Error saving profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
     
